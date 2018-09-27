@@ -26,38 +26,33 @@ use Cake\Validation\Validator;
 class ArticlesTable extends Table
 {
 
-// $query 引数はクエリービルダーのインスタンスです。
-// $options 配列には、コントローラーのアクションで find('tagged') に渡した
-// "tags" オプションが含まれています。
-public function findTagged(Query $query, array $options)
-{
+    // $query 引数はクエリービルダーのインスタンスです。
+    // $options 配列には、コントローラーのアクションで find('tagged') に渡した
+    // "tags" オプションが含まれています。
+    public function findTagged(Query $query, array $options)
+    {
+        $columns = [
+            'Articles.id', 'Articles.user_id', 'Articles.title',
+            'Articles.body', 'Articles.published', 'Articles.created',
+            'Articles.slug',
+        ];
 
-$connection = \Cake\Datasource\ConnectionManager::get('default'); // DB接続を取得
-$connection->logQueries(true);
-    $columns = [
-        'Articles.id', 'Articles.user_id', 'Articles.title',
-        'Articles.body', 'Articles.published', 'Articles.created',
-        'Articles.slug',
-    ];
+        $query = $query
+            ->select($columns)
+            ->distinct($columns);
 
-    $query = $query
-        ->select($columns)
-        ->distinct($columns);
+        if (empty($options['tags'])) {
+            // タグが指定されていない場合は、タグのない記事を検索します。
+            $query->leftJoinWith('Tags')
+                ->where(['Tags.title IS' => null]);
+        } else {
+            // 提供されたタグが1つ以上ある記事を検索します。
+            $query->innerJoinWith('Tags')
+                ->where(['Tags.title IN' => $options['tags']]);
+        }
 
-    if (empty($options['tags'])) {
-        // タグが指定されていない場合は、タグのない記事を検索します。
-        $query->leftJoinWith('Tags')
-            ->where(['Tags.title IS' => null]);
-    } else {
-        // 提供されたタグが1つ以上ある記事を検索します。
-        $query->innerJoinWith('Tags')
-            ->where(['Tags.title IN' => $options['tags']]);
+        return $query->group(['Articles.id']);
     }
-    $test = $query->group(['Articles.id']);
-$connection->logQueries(false); // SQL Queryのログ出力を無効化
-debug($test->sql());
-    return $test;
-}
 
     /**
      * Initialize method

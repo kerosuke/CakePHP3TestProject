@@ -52,7 +52,7 @@ class ArticlesController extends AppController
     public function add()
     {
         $article = $this->Articles->newEntity();
-debug("test");
+
         if ($this->request->is('post')) {
             $article = $this->Articles->patchEntity($article, $this->request->getData());
 
