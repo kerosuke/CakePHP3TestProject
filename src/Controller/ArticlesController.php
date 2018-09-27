@@ -52,8 +52,13 @@ class ArticlesController extends AppController
     public function add()
     {
         $article = $this->Articles->newEntity();
+debug("test");
         if ($this->request->is('post')) {
             $article = $this->Articles->patchEntity($article, $this->request->getData());
+
+            // 一時的
+            $article->user_id = 1;
+
             if ($this->Articles->save($article)) {
                 $this->Flash->success(__('The article has been saved.'));
 
@@ -111,4 +116,23 @@ class ArticlesController extends AppController
 
         return $this->redirect(['action' => 'index']);
     }
+
+    public function tags()
+    {
+        // 'pass' キーは CakePHP によって提供され、リクエストに渡された
+        // 全ての URL パスセグメントを含みます。
+        $tags = $this->request->getParam('pass');
+
+        // ArticlesTable を使用してタグ付きの記事を検索します。
+        $articles = $this->Articles->find('tagged', [
+            'tags' => $tags
+        ]);
+
+        // 変数をビューテンプレートのコンテキストに渡します。
+        $this->set([
+            'articles' => $articles,
+            'tags' => $tags
+        ]);
+    }
+
 }
