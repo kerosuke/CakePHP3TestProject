@@ -12,7 +12,7 @@
 <section>
 <?php foreach ($articles as $article): ?>
     <article>
-        <!-- ƒŠƒ“ƒN‚Ìì¬‚É HtmlHelper ‚ğg—p -->
+        <!-- ãƒªãƒ³ã‚¯ã®ä½œæˆã« HtmlHelper ã‚’ä½¿ç”¨ -->
         <h4><?= $this->Html->link(
             $article->title,
             ['controller' => 'Articles', 'action' => 'view', $article->slug]
