@@ -24,6 +24,21 @@ use Cake\ORM\Entity;
 class Article extends Entity
 {
 
+    protected function _getTagString()
+    {
+        if (isset($this->_properties['tag_string'])) {
+            return $this->_properties['tag_string'];
+        }
+        if (empty($this->tags)) {
+            return '';
+        }
+        $tags = new Collection($this->tags);
+        $str = $tags->reduce(function ($string, $tag) {
+            return $string . $tag->title . ', ';
+        }, '');
+        return trim($str, ', ');
+    }
+
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *
@@ -42,21 +57,8 @@ class Article extends Entity
         'created' => true,
         'modified' => true,
         'user' => true,
-        'tags' => true
+        'tags' => true,
+        'tag_string' => true
     ];
 
-    protected function _getTagString()
-    {
-        if (isset($this->_properties['tag_string'])) {
-            return $this->_properties['tag_string'];
-        }
-        if (empty($this->tags)) {
-            return '';
-        }
-        $tags = new Collection($this->tags);
-        $str = $tags->reduce(function ($string, $tag) {
-            return $string . $tag->title . ', ';
-        }, '');
-        return trim($str, ', ');
-    }
 }

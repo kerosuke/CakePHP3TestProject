@@ -26,9 +26,49 @@ use Cake\Validation\Validator;
 class ArticlesTable extends Table
 {
 
-    // $query ˆø”‚ÍƒNƒGƒŠ[ƒrƒ‹ƒ_[‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚Å‚·B
-    // $options ”z—ñ‚É‚ÍAƒRƒ“ƒgƒ[ƒ‰[‚ÌƒAƒNƒVƒ‡ƒ“‚Å find('tagged') ‚É“n‚µ‚½
-    // "tags" ƒIƒvƒVƒ‡ƒ“‚ªŠÜ‚Ü‚ê‚Ä‚¢‚Ü‚·B
+    public function beforeSave($event, $entity, $options)
+    {
+        if ($entity->tag_string) {
+            $entity->tags = $this->_buildTags($entity->tag_string);
+        }
+
+        // ä»–ã®ã‚³ãƒ¼ãƒ‰
+    }
+
+    protected function _buildTags($tagString)
+    {
+        // ã‚¿ã‚°ã‚’ãƒˆãƒªãƒŸãƒ³ã‚°
+        $newTags = array_map('trim', explode(',', $tagString));
+        // å…¨ã¦ã®ã‹ã‚‰ã®ã‚¿ã‚°ã‚’å‰Šé™¤
+        $newTags = array_filter($newTags);
+        // é‡è¤‡ã™ã‚‹ã‚¿ã‚°ã®å‰Šæ¸›
+        $newTags = array_unique($newTags);
+
+        $out = [];
+        $query = $this->Tags->find()
+            ->where(['Tags.title IN' => $newTags]);
+
+        // æ–°ã—ã„ã‚¿ã‚°ã®ãƒªã‚¹ãƒˆã‹ã‚‰æ—¢å­˜ã®ã‚¿ã‚°ã‚’å‰Šé™¤ã€‚
+        foreach ($query->extract('title') as $existing) {
+            $index = array_search($existing, $newTags);
+            if ($index !== false) {
+                unset($newTags[$index]);
+            }
+        }
+        // æ—¢å­˜ã®ã‚¿ã‚°ã‚’è¿½åŠ ã€‚
+        foreach ($query as $tag) {
+            $out[] = $tag;
+        }
+        // æ–°ã—ã„ã‚¿ã‚°ã‚’è¿½åŠ ã€‚
+        foreach ($newTags as $tag) {
+            $out[] = $this->Tags->newEntity(['title' => $tag]);
+        }
+        return $out;
+    }
+
+    // $query å¼•æ•°ã¯ã‚¯ã‚¨ãƒªãƒ¼ãƒ“ãƒ«ãƒ€ãƒ¼ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã§ã™ã€‚
+    // $options é…åˆ—ã«ã¯ã€ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ã®ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã§ find('tagged') ã«æ¸¡ã—ãŸ
+    // "tags" ã‚ªãƒ—ã‚·ãƒ§ãƒ³ãŒå«ã¾ã‚Œã¦ã„ã¾ã™ã€‚
     public function findTagged(Query $query, array $options)
     {
         $columns = [
@@ -42,11 +82,11 @@ class ArticlesTable extends Table
             ->distinct($columns);
 
         if (empty($options['tags'])) {
-            // ƒ^ƒO‚ªŽw’è‚³‚ê‚Ä‚¢‚È‚¢ê‡‚ÍAƒ^ƒO‚Ì‚È‚¢‹LŽ–‚ðŒŸõ‚µ‚Ü‚·B
+            // ã‚¿ã‚°ãŒæŒ‡å®šã•ã‚Œã¦ã„ãªã„å ´åˆã¯ã€ã‚¿ã‚°ã®ãªã„è¨˜äº‹ã‚’æ¤œç´¢ã—ã¾ã™ã€‚
             $query->leftJoinWith('Tags')
                 ->where(['Tags.title IS' => null]);
         } else {
-            // ’ñ‹Ÿ‚³‚ê‚½ƒ^ƒO‚ª1‚ÂˆÈã‚ ‚é‹LŽ–‚ðŒŸõ‚µ‚Ü‚·B
+            // æä¾›ã•ã‚ŒãŸã‚¿ã‚°ãŒ1ã¤ä»¥ä¸Šã‚ã‚‹è¨˜äº‹ã‚’æ¤œç´¢ã—ã¾ã™ã€‚
             $query->innerJoinWith('Tags')
                 ->where(['Tags.title IN' => $options['tags']]);
         }

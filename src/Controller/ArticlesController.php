@@ -56,7 +56,7 @@ class ArticlesController extends AppController
         if ($this->request->is('post')) {
             $article = $this->Articles->patchEntity($article, $this->request->getData());
 
-            // ˆê“I
+            // user_id ã®æ±ºã‚æ‰“ã¡ã¯ä¸€æ™‚çš„ãªã‚‚ã®ã§ã€ã‚ã¨ã§èªè¨¼ã‚’æ§‹ç¯‰ã™ã‚‹éš›ã«å‰Šé™¤ã•ã‚Œã¾ã™ã€‚
             $article->user_id = 1;
 
             if ($this->Articles->save($article)) {
@@ -119,16 +119,16 @@ class ArticlesController extends AppController
 
     public function tags()
     {
-        // 'pass' ƒL[‚Í CakePHP ‚É‚æ‚Á‚Ä’ñ‹Ÿ‚³‚êAƒŠƒNƒGƒXƒg‚É“n‚³‚ê‚½
-        // ‘S‚Ä‚Ì URL ƒpƒXƒZƒOƒƒ“ƒg‚ğŠÜ‚İ‚Ü‚·B
+        // 'pass' ã‚­ãƒ¼ã¯ CakePHP ã«ã‚ˆã£ã¦æä¾›ã•ã‚Œã€ãƒªã‚¯ã‚¨ã‚¹ãƒˆã«æ¸¡ã•ã‚ŒãŸ
+        // å…¨ã¦ã® URL ãƒ‘ã‚¹ã‚»ã‚°ãƒ¡ãƒ³ãƒˆã‚’å«ã¿ã¾ã™ã€‚
         $tags = $this->request->getParam('pass');
 
-        // ArticlesTable ‚ğg—p‚µ‚Äƒ^ƒO•t‚«‚Ì‹L–‚ğŒŸõ‚µ‚Ü‚·B
+        // ArticlesTable ã‚’ä½¿ç”¨ã—ã¦ã‚¿ã‚°ä»˜ãã®è¨˜äº‹ã‚’æ¤œç´¢ã—ã¾ã™ã€‚
         $articles = $this->Articles->find('tagged', [
             'tags' => $tags
         ]);
 
-        // •Ï”‚ğƒrƒ…[ƒeƒ“ƒvƒŒ[ƒg‚ÌƒRƒ“ƒeƒLƒXƒg‚É“n‚µ‚Ü‚·B
+        // å¤‰æ•°ã‚’ãƒ“ãƒ¥ãƒ¼ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã®ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆã«æ¸¡ã—ã¾ã™ã€‚
         $this->set([
             'articles' => $articles,
             'tags' => $tags
